@@ -1,0 +1,32 @@
+{
+    "id": "68EA8375",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1607954921674.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "expression": "car.df",
+        "caption": "car.df",
+        "totalObservations": "1436",
+        "displayedObservations": "1436",
+        "variables": "39",
+        "cacheKey": "57A7E5A7",
+        "object": "car.df",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=car.df&cache_key=57A7E5A7&max_cols=50",
+        "preview": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 8025244620247294316,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1607954921674,
+    "read_only": false,
+    "read_only_alternatives": []
+}

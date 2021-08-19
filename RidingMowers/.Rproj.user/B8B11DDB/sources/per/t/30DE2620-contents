@@ -1,0 +1,40 @@
+library(ggplot2)
+library(forecast)
+library(plotly)
+library(dplyr)
+
+riding <- read.csv("RidingMowers.csv")
+
+df_riding <- riding
+View(df_riding)
+
+#1번문제
+plot(df_riding$Lot_Size ~ df_riding$Income, xlab = "Lot_Size", ylab="Income", 
+     col = ifelse(df_riding$Ownership == "Owner","black","red"))
+      legend('topright', legend = c("Owner", "NonOwner"), col = c("black", "red"), 
+       cex = 0.8, pch = 1)
+      
+#2-(1)번문제
+laptop <- read.csv("LaptopSalesJanuary2008.csv")
+df_laptop <- laptop
+View(df_laptop)      
+
+data.for.plot <- aggregate(df_laptop$Retail.Price, by = list(df_laptop$Store.Postcode), FUN = mean)
+data.for.plot
+names(data.for.plot) <- c("StorePostcode", "Price")
+
+ggplot(data = data.for.plot, aes(reorder(x = StorePostcode, Price), y = Price), stat = "identity") + geom_col() + coord_flip() + xlab('StorePostcode')
+
+
+#2-(2)번문제 가장 높은 매장은 N17 6QA매장이며 가장 낮은 매장은 W4 3PH인 것을 알 수 있다.
+note <- df_laptop %>%
+  filter(Store.Postcode == "N17 6QA") 
+note   
+
+note2 <- df_laptop %>%
+  filter(Store.Postcode == "W4 3PH")
+note2
+
+par(mfcol = c(1, 2))
+boxplot(note$Retail.Price~note$Store.Postcode, xlab = "Store.Postcode$N17 6QA", ylab = "Retail.Price")
+boxplot(note2$Retail.Price~note2$Store.Postcode, xlab = "Store.Postcode$W4 3PH", ylab = "Retail.Price")

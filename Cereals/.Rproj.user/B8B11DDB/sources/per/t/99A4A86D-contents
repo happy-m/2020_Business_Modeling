@@ -1,0 +1,34 @@
+cereal <- read.csv("Cereals.csv")
+cereal.df <- cereal
+View(cereal.df)
+
+
+#1-(2)
+sapply(cereal.df, mean, na.rm=TRUE)
+sapply(cereal.df, min, na.rm=TRUE)
+sapply(cereal.df, max, na.rm=TRUE)
+sapply(cereal.df, sd, na.rm=TRUE)
+sapply(cereal.df, median, na.rm=TRUE)
+
+
+library(ggplot2)
+library(dplyr)
+
+#1-(3)
+par(mfrow=c(4, 4)) 
+for(i in 4:16){ hist(cereal[,i], main = paste(i,'-', colnames(cereal)[i], sep = '') ) }
+
+#1-(4)
+boxplot(cereal.df$calories~cereal.df$type, xlab = "type", ylab = "calories")
+
+#1-(5)
+boxplot(cereal.df$rating~cereal.df$shelf)
+
+mean(shelf3$rating)
+shelf3 <- cereal.df %>%
+  filter(shelf ==3)
+
+#1-(6)
+cor(cereal[,4:16])
+plot(cereal.df)  
+

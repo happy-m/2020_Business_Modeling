@@ -1,0 +1,152 @@
+library(foreign)
+df <- read.spss(file = "Koweps_hpc10_2015_beta1.sav", to.data.frame = T)
+View(df)
+head(df)
+welfare <- df
+
+
+#1. ????, ???Ìº? ???? ?í¿¬?? ?Ð¼?
+
+welfare$p1005_3aq6 #?í¿¬??
+welfare$h10_g3 #????
+welfare$h10_g4 #Åº??????
+
+library(dplyr)
+
+welfare <- rename(welfare,
+                  smoking = p1005_3aq6,
+                  gender = h10_g3,
+                  birth = h10_g4)
+
+welfare$age <- 2015 - welfare$birth + 1
+
+#???? ??Á¤
+welfare <- welfare %>% 
+  mutate(age_cat = ifelse(age < 20, "child", ifelse(age < 40, "young", ifelse(age < 60, "middle", "old"))))
+
+#???? ??Á¤
+welfare$gender <- ifelse(welfare$gender == 1, "male", "female")
+
+table(welfare$gender)
+table(welfare$age_cat)
+
+gender_age_smoking <- welfare %>%
+  filter(!is.na(smoking)) %>%
+  group_by(age_cat, gender) %>%
+  summarise(mean_smoking = mean(smoking))
+  
+gender_age_smoking
+
+library(ggplot2)
+ggplot(data = gender_age_smoking, aes(x = age_cat, mean_smoking, fill = gender)) + geom_col(position = "dodge") + scale_x_discrete(limits = c("child", "young", "middle", "old"))
+
+
+
+#2. ?Êµ??Ð»??? ?Ð±??????? ?Ð±???È° ?Ð¼?
+
+welfare$c1001_1 #??Á·??
+welfare$c1001_10 #?Ð±?????
+
+welfare <- rename(welfare,
+       school_satisfaction = c1001_1,
+       school_grade = c1001_10)
+
+
+#??Á·?? ??Á¤
+welfare$school_satisfaction <- ifelse(welfare$school_satisfaction == 1, "very bad", ifelse(welfare$school_satisfaction == 2, "bad", ifelse(welfare$school_satisfaction == 3, "good", "very good")))
+table(welfare$school_satisfaction)
+
+#???? ??Á¤
+welfare$school_grade <- ifelse(welfare$school_grade == 1, "very bad", ifelse(welfare$school_grade == 2, "bad", ifelse(welfare$school_grade == 3, "normal", ifelse(welfare$school_grade == 4, "good", "very good"))))
+table(welfare$school_grade)
+
+satisfaction_grade <- welfare %>%
+  filter(!is.na(school_satisfaction), !is.na(school_grade)) %>%
+  group_by(school_satisfaction, school_grade) %>%
+  summarise(count = n()) %>%
+  mutate(total = sum(count), percent = round(count/total *100, 1))
+
+satisfaction_grade
+
+ggplot(data = satisfaction_grade, aes(x = school_grade, y = percent, fill = school_satisfaction)) + geom_col(position = "dodge") + coord_flip() + scale_x_discrete(limits = c("very good", "good", "normal", "bad", "very bad"))
+
+
+#3. ??Á¾?? ???? ???? ?Ó±Ý°? ???? ?????? ?Ð¼?
+welfare$h10_eco9 #??Á¾
+welfare$p1001_32 #??????
+welfare$p1002_8aq1 #?Ó±?
+
+library(readxl)
+job_list <- read_excel("Koweps_Codebook.xlsx", col_names = T, sheet = 2)
+
+welfare <- rename(welfare,
+                  code_job = h10_eco9,
+                  income = p1002_8aq1,
+                  retirement = p1001_32)
+
+welfare <- left_join(welfare, job_list, by = "code_job")
+
+#?????????? ??À§10?? ????
+retirement_job <- welfare %>%
+  filter(!is.na(job), !is.na(retirement)) %>%
+  group_by(job) %>%
+  summarise(mean_retirement = mean(retirement)) %>%
+  arrange(-mean_retirement) %>%
+  head(10)
+
+retirement_job
+ggplot(data = retirement_job, aes(x = reorder(job, mean_retirement), y = mean_retirement)) + geom_col() + coord_flip()
+
+#?????Ó±? ??À§10?? ????
+job_income <- welfare %>%
+  filter(!is.na(job) & !is.na(income)) %>%
+  group_by(job) %>%
+  summarise(income_mean = mean(income))
+head(job_income)
+
+top10_job <- job_income %>%
+  arrange(-income_mean) %>%
+  head(10)
+ggplot(data = top10_job, aes(x = reorder(job, income_mean), y = income_mean)) + geom_col() + coord_flip() 
+
+#?????Ó±Ý°? + ???? ?????? ??À§ 10?? ????
+income_retirement <- welfare %>%
+  group_by(job) %>%
+  filter(!is.na(job) & !is.na(income) & !is.na(retirement)) %>%
+  summarise(total_mean = mean(income + retirement)) %>%
+  arrange(desc(total_mean)) %>%
+  head(10)
+
+ggplot(data = income_retirement, aes(x = reorder(job, total_mean), y = total_mean)) + geom_col() + coord_flip()
+
+
+#4. ?Ö°?À§Ä¡?? ???? ???? ???? ???? ?Ð¼?
+welfare$h1006_2 #?Ö°?À§Ä¡
+welfare$h1006_6 #???Ç°???
+welfare$h1006_3 #Á¡À¯????
+
+welfare <- rename(welfare,
+                   price = h1006_6,
+                   place = h1006_2,
+                  type = h1006_3)
+
+#?Ö°?À§Ä¡ ??Á¤
+welfare$place <- ifelse(welfare$place == 1, "underground", 
+                 ifelse(welfare$place == 2, "semi-basement", 
+                 ifelse(welfare$place == 3, "ground", "rooftoop")))
+
+#Á¡À¯???? ??Á¤
+welfare$type <- ifelse(welfare$type == 1, "owner", 
+                ifelse(welfare$type == 2, "lease", 
+                ifelse(welfare$type == 3, "semi-lease", NA)))
+
+welfare$type
+welfare$place
+
+place_price <- welfare %>%
+  filter(!is.na(price), !is.na(place), !is.na(type)) %>%
+  group_by(type, place) %>%
+  summarise(mean_price = mean(price)) 
+
+ggplot(data = place_price, aes(x = place, y = mean_price, fill = type)) + geom_col(position = "dodge") + coord_flip()
+

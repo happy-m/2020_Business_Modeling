@@ -1,0 +1,32 @@
+{
+    "id": "BD47E219",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1605711278004.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "expression": "cereal.df",
+        "caption": "cereal.df",
+        "totalObservations": "77",
+        "displayedObservations": "77",
+        "variables": "16",
+        "cacheKey": "78F43963",
+        "object": "cereal.df",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=cereal.df&cache_key=78F43963&max_cols=50",
+        "preview": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 7018332503360763489,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1605711278004,
+    "read_only": false,
+    "read_only_alternatives": []
+}

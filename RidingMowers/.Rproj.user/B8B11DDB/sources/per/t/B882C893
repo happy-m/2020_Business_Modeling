@@ -1,0 +1,32 @@
+{
+    "id": "B882C893",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1604939570645.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "expression": "df_riding",
+        "caption": "df_riding",
+        "totalObservations": 24,
+        "displayedObservations": 24,
+        "variables": 3,
+        "cacheKey": "C47CA89C",
+        "object": "df_riding",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=df_riding&cache_key=C47CA89C&max_cols=50",
+        "preview": 0
+    },
+    "folds": "",
+    "lastKnownWriteTime": 7453001533780553577,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1604939570645,
+    "read_only": false,
+    "read_only_alternatives": []
+}

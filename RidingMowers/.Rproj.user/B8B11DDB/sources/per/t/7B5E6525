@@ -1,0 +1,32 @@
+{
+    "id": "7B5E6525",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1604941368306.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "expression": "df_laptop",
+        "caption": "df_laptop",
+        "totalObservations": 7956,
+        "displayedObservations": 7956,
+        "variables": 17,
+        "cacheKey": "BAF15F93",
+        "object": "df_laptop",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=df_laptop&cache_key=BAF15F93&max_cols=50",
+        "preview": 0
+    },
+    "folds": "",
+    "lastKnownWriteTime": 7378066505733006694,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1604941368306,
+    "read_only": false,
+    "read_only_alternatives": []
+}

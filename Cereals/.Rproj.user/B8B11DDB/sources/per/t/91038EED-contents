@@ -1,0 +1,374 @@
+a <- 1
+b <- 2
+a + b
+var1 <- seq(1, 10, by = 2)
+var1
+mean(var1)
+
+install.packages("ggplot2")
+install.packages("dplyr")
+library(ggplot2)
+library(dplyr)
+
+english <- c(80, 70, 100, 58)
+science <- c(50, 77, 80, 93)
+df_exam <- data.frame(english, science) #행과 열로 구성
+df_exam
+math <- c(70, 83, 67, 90)
+df_exam <- data.frame(english, science, math)
+df_exam$english
+df_exam2 <- data.frame(english = c(88, 89, 87, 86), science = c(77, 78, 79, 76))
+df_exam2
+
+#외부데이터 불러오기
+df_exam3 <- read.csv("csv_exam.csv")
+df_exam3
+
+install.packages("readxl")
+library(readxl)
+
+df_exam3_xl <- read_excel("excel_exam.xlsx")
+df_exam3_xl
+str(df_exam3_xl)
+
+mpg <- as.data.frame(ggplot2::mpg)
+mpg
+df_mpg <- mpg
+df_mpg
+View(df_mpg)
+
+df_mpg <- rename(df_mpg, manufacturer2 = manufacturer)
+
+df_mpg$total <- (df_mpg$cty + df_mpg$hwy)/2
+head(df_mpg)
+
+hist(df_mpg$total)
+
+df_mpg$test <- ifelse(df_mpg$total > 20, "pass", "fail")
+head(df_mpg)
+qplot(df_mpg$test)
+
+#dplyr함수
+#filter, select, arrage, mutate, summarise, group_by, left_join, bind_rows
+df_exam <- read.csv("csv_exam.csv")
+df_exam
+
+df_exam %>% filter(class == 1 & english <= 90)
+
+mpg_4 <- df_mpg %>% filter(displ <= 4)
+mpg_5 <- df_mpg %>% filter(displ >= 5)
+mean(mpg_4$hwy)
+mean(mpg_5$hwy)
+
+mpg2 <- df_mpg %>% filter(manufacturer2 %in% c("Cheverolet", "ford", "honda"))
+mpg2
+mean(mpg2$hwy)
+
+#<dplyr function>
+df_exam
+df_exam %>% select(-math)
+df_exam %>% filter(class == 1) %>% select(english)
+df_exam %>% arrange(desc(english))
+df_exam %>% 
+  mutate(total = math + science + english) %>%
+  mutate(average = total/3) %>%
+  head(10) %>%
+  arrange(desc(average))
+df_exam %>%
+  mutate(total = math + science + english, mean = (math + science + english)/3) 
+
+#집단별 요약
+df_exam %>% summarise(mean_math = mean(math))
+df_exam %>% group_by(class) %>%
+  summarise(mean_math = mean(math))
+df_exam %>% group_by(class) %>%
+  summarise(mean_math = mean(math), 
+            sum_math = sum(math),
+            median_math = median(math),
+            n = n())
+
+#자동차 회사별 suv의 평균 연비값을 좋은 회사부터 내림차순으로 1위-5위까지 나열
+mpg
+df_mpg <- mpg
+df_mpg %>% group_by(manufacturer) %>%
+  filter(class == "suv") %>%
+  summarise(mean_total = mean((cty + hwy)/2)) %>%
+  arrange(desc(mean_total)) %>%
+  head(5)
+
+data1 <- data.frame(id = c(1, 2, 3), midterm = c(70, 40, 90))
+data2 <- data.frame(id = c(1, 2, 3), final = c(60, 100, 75))
+total_score <- left_join(data1, data2, by = "id")
+total_score
+
+data3 <- data.frame(id = c(1, 2, 3), midterm = c(80, 55, 92))
+data4 <- data.frame(id = c(4, 5, 6), midterm = c(77, 49, 100))
+total_34 <- bind_rows(data3, data4)
+total_34
+
+#midwest 데이터 사용
+#전체 인구 대비 미성년 비율 구하기
+midwest <- as.data.frame(ggplot2::midwest)
+df_midwest<- midwest
+head(df_midwest)
+View(df_midwest)
+
+df_midwest <- df_midwest %>% mutate(child_ratio = (poptotal - popadults)/poptotal * 100)
+
+#미성년 인구 백분율이 가장 높은 상위 5개 county의 미성년 인구백분율 출력
+df_midwest %>%
+  arrange(desc(child_ratio)) %>%
+  select(county, child_ratio) %>%
+  head(5)
+
+#미성년 비율등급변수를 추가하고, 각 등급에 몇 개의 지역이 있는지 알아보자
+#미성년 비율 >= 40 : large, 30 >= : middle, else : small
+df_midwest <- df_midwest %>% mutate(grade = ifelse(child_ratio >= 40, "large", ifelse(child_ratio >= 30, "middle", "small")))
+table(df_midwest$grade)
+
+#데이터 정제 : 결측치, 이상치
+df<- data.frame(sex = c("F", "M", NA, "M", "F"), score = c(5, 4, 3, 5, NA))
+df
+is.na(df)
+table(df$sex)
+mean(df$score)
+df %>% filter(!is.na(score) & !is.na(sex))
+mean(df$score, na.rm = T)
+
+exam <- read.csv("csv_exam.csv")
+exam
+exam[c(3, 8, 15), "math"] <- NA
+mean(exam$math, na.rm = T)
+exam$math <- ifelse(is.na(exam$math), 55, exam$math)
+exam$math
+
+#이상치
+mpg <- as.data.frame(ggplot2::mpg)
+mpg$hwy <- ifelse(mpg$hwy < 12 | mpg$hwy > 37, NA, mpg$hwy)
+mpg$hwy
+table(is.na(mpg$hwy))
+
+#drv에 따른 평균 hwy연비
+mpg %>% 
+  group_by(drv) %>%
+  summarise(mean_hwy = mean(hwy, na.rm = T))
+  
+#그래프 : 산점도(scatterplot)
+ggplot(data = mpg, aes(x = displ, y = hwy)) + geom_point() + xlim(3, 6) + ylim(10, 30)
+
+#산점도를 사용해서 cty, hwy연비 사이의 관계를 추측해보기
+ggplot(data = mpg, aes(x = cty, y = hwy)) + geom_point()
+
+#막대그래프(bar chart)
+#drv별 평균 고속도록 연비 막대그래프로 표현하기
+mpg <- as.data.frame(ggplot2::mpg)
+df_mpg <- mpg
+df_mpg <- df_mpg %>% group_by(drv) %>%
+  summarise(hwy_avg = mean(hwy))
+df_mpg
+ggplot(data = df_mpg, aes(x = drv, y = hwy_avg)) + geom_col() #평균막대그래프
+ggplot(data = df_mpg, aes(x = reorder(drv, -hwy_avg), y = hwy_avg)) + geom_col()
+     
+ggplot(data = df_mpg, aes(x = drv)) + geom_bar() #빈도막대그래프
+
+#어떤 회사의 suv가 도시연비(cty)가 가장 높은지를 보자. 
+#가장 높은 자동차 회사 다섯 곳을 막대그래프로 표현하세요.
+#연비가 높은 순으로 정렬하시오.
+
+mpg_cty <- df_mpg %>% 
+  filter(class == "suv") %>%
+  group_by(manufacturer) %>%
+  summarise(cty_avg = mean(cty)) %>%
+  arrange(desc(cty_avg)) %>%
+  head(5)
+
+mpg_cty
+ggplot(data = mpg_cty, aes(x = reorder(manufacturer, -cty_avg), y = cty_avg)) + geom_col()  
+  
+#자동차중에 어떤 클래스가 가장 많은지 알아보자.
+#자동차 종류별 빈도를 그래프로 그리시오.
+
+ggplot(data = df_mpg, aes(x = class)) + geom_bar()
+
+#line graph > 주로 시간에 따른 변화 추이를 볼 때 많이 사용
+#ex.주식의 변화 추이
+economics <- as.data.frame(ggplot2::economics)
+df_eco <- economics
+View(df_eco)
+#granularity - 세밀한 정도
+
+#시간에 따른 실업자 수 추이
+ggplot(data = df_eco, aes(x = date, y = unemploy)) + geom_line()
+ggplot(data = df_eco, aes(x = date, y = psavert)) + geom_line()
+
+#boxplot 
+#mpg데이터 사용, 수동방식(drv)별 고속도로 연비(hwy)를 boxplot으로 표현하기
+ggplot(data = df_mpg, aes(x = drv, y = hwy)) + geom_boxplot()
+#상자 밑면 : 1사분위, 윗면 : 3사분위, 가운데 선 : 2사분위, 
+#윗수염 : 상위 25%, 아랫수염 : 하위 25%, 점 : 극단값(q1-q3의 범위보다 1.5배 벗어난 값)
+#IQR(Interquartile range) = Q3 - Q1
+
+# 0, 1, 1, 2, 3, 5, 18, 26, 32, 40, 58, 100(12개)
+# min : 0, q1 : 1.5((3번째+4번째)/2), med : 11.5((6번째+7번째)/2), q3 : 36, max : 100
+# IQR = 36 - 1.5 = 34.5
+# IQR*1.5 = 51.75
+# 36 + 51.75 = 87.75, 1.5 - 57.75 = -50.25 => 극단값
+
+#class가 compact, subcompact, suv 인 자동차의 cty가 어떻게 다른지 비교하기(boxplot)
+class_3 <- df_mpg %>%
+  filter(class %in% c("compact", "subcompact", "suv"))
+
+head(class_3, 10)
+
+ggplot(data = class_3, aes(x = class, y = hwy)) + geom_boxplot()
+
+#KoNLP
+#NLP : Natural Language Processing(형태소 분석, 텍스트 마이닝, 텍스트 분석)
+
+install.packages("KoNLP")
+install.packages("Sejong")
+install.packages("hash")
+install.packages("rJava")
+install.packages("tau")
+install.packages("devtools")
+install.packages("RSQLite")
+install.packages("multilinguer")
+install.packages("remotes")
+library(multilinguer)
+library(KoNLP)
+
+install.packages("multilinguer")
+library(multilinguer)
+install_jdk()
+install.packages(c("hash", "tau", "Sejong", "RSQLite", "devtools", "bit", "rex", "lazyeval", "htmlwidgets", "crosstalk", "promises", "later", "sessioninfo", "xopen", "bit64", "blob", "DBI", "memoise", "plogr", "covr", "DT", "rcmdcheck", "rversions"), type = "binary")
+# github 버전 설치
+install.packages("remotes")
+# 64bit 에서만 동작합니다.
+remotes::install_github('haven-jeon/KoNLP', upgrade = "never", INSTALL_opts=c("--no-multiarch"))
+
+
+useNIADic()
+extractNoun() #명사 추출
+
+
+
+#Koweps_hpc10_2015_betal1.sav
+
+install.packages("foreign")
+library(foreign)
+raw_welfare <- read.spss(file = "Koweps_hpc10_2015_beta1.sav", to.data.frame = T)
+head(raw_welfare)
+View(raw_welfare)
+
+library(dplyr)
+welfare <- raw_welfare
+welfare <- rename(welfare, 
+                  sex = h10_g3, 
+                  birth = h10_g4, 
+                  marriage = h10_g10, 
+                  religion = h10_g11,
+                  income = p1002_8aq1, 
+                  code_job = h10_eco9, 
+                  code_region = h10_reg7)
+
+summary(welfare$sex)
+table(welfare$sex)
+dim(welfare)
+library(ggplot2)
+qplot(welfare$sex)
+
+#성별 월수입 평균비교
+
+welfare$sex <- ifelse(welfare$sex == 1, "male", "female")
+sex_income <- welfare %>% 
+  filter(!is.na(income)) %>%
+  group_by(sex) %>%
+  summarise(income_avg = mean(income)) 
+
+table(welfare$sex)
+ggplot(data = sex_income, aes(x = sex, y = income_avg)) + geom_col()
+
+housing.df <- read.csv("WestRoxbury.csv", header = T)
+housing.df
+housing <- housing.df
+View(housing)
+
+housing[1:10, 2] #1-10행, 2열만
+housing[5, c(1:2, 4, 8:10)]
+length(housing$TOTAL.VALUE)
+mean(housing$TOTAL.VALUE)
+summary(housing$TOTAL.VALUE)
+
+#over sampling
+s <- sample(row.names(housing), 5)
+housing[s, ]
+s <- sample(row.names(housing), 5, prob = ifelse(housing$ROOMS > 10, 0.9, 0.01))
+
+names(housing)
+t(t(names(housing)))
+colnames(housing)
+
+class(housing$REMODEL)
+housing$REMODEL <- as.factor(housing$REMODEL)
+class(housing[, 14])
+levels(housing[, 14])
+#categorical variable(범주형 변수) ex. 남 여
+
+#dummy variable
+xtotal <- model.matrix(~ 0 + BEDROOMS + REMODEL, data = housing)
+xtotal$BEDROOMS[1:5]
+xtotal <- as.data.frame(xtotal)
+t(t(names(xtotal)))
+head(xtotal)
+xtotal <- xtotal[, -4]
+
+housing <- cbind(housing[, -c(9, 14)], xtotal)
+head(housing)
+t(t(names(housing)))
+
+
+#CODE FOR INPUTING MISSING DATA
+dim(housing)
+rows.to.missing <- sample(row.names(housing), 10)
+rows.to.missing
+housing[rows.to.missing, ]$BEDROOMS <- NA #결측치
+summary(housing$BEDROOMS)
+
+housing[rows.to.missing,]$BEDROOMS <- median(housing$BEDROOMS, na.rm = TRUE)
+summary(housing$BEDROOMS)
+
+set.seed(1) #random sampling 
+dim(housing)
+rownames(housing)
+train.rows <- sample(rownames(housing), dim(housing)[1]*0.6)
+train.data <- housing[train.rows, ]
+train.data
+
+valid.rows <- setdiff(rownames(housing), train.rows)
+valid.data <- housing.df[valid.rows,]
+valid.data
+
+
+#regression analysis
+reg <- lm(TOTAL.VALUE ~ .-TAX, data = housing, subset = train.rows)
+tr.res <- data.frame(train.data$TOTAL.VALUE, reg$fitted.values, reg$residuals)
+head(tr.res)
+pred <- predict(reg, newdata = valid.data)
+vl.res <- data.frame(valid.data$TOTAL.VALUE, pred, residuals = valid.data$TOTAL.VALUE - pred)
+head(vl.res)
+
+install.packages("forecast")
+library(forecast)
+accuracy(pred, valid.data$TOTAL.VALUE)
+
+boston <- read.csv("BostonHousing.csv", header = TRUE)
+
+cereal <- read.csv("Cereals.csv")
+cereal.df <- cereal
+View(cereal.df)
+
+cal_rate <- cereal.df[, c(4,16)]
+cal_rate
+pcs <- prcomp(cal_rate)
+pcs
+summary(pcs)
